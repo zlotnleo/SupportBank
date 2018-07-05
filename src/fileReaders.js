@@ -94,7 +94,7 @@ module.exports = {
         let hasInvalidAmount = false;
 
         for (let elt of output.elements[0].elements) {
-            let date = moment();
+            let date = moment("1900-01-01").add(Number(elt.attributes.Date) - 2, "days");
             hasInvalidDate = hasInvalidDate || !date.isValid();
             let amount = Number(elt.elements.find(e => e.name === "Value").elements[0].text);
             hasInvalidAmount = hasInvalidAmount || isNaN(amount);
