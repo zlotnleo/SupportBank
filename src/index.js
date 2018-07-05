@@ -30,7 +30,15 @@ process.stdin.on("readable", () => {
     } else if(input.startsWith("Import File ")) {
         let filename = input.substring("Import File ".length);
         try {
-            FileImport(filename).forEach(transaction => bank.processTransaction(transaction));
+            let loaded = FileImport(filename);
+            if(loaded.hasInvalidDate) {
+                console.log("Warning: one or more transactions contain an invalid date. They will appear out of order");
+            }
+            if(loaded.hasInvalidAmount) {
+                console.log("Warning: one or more transactions contain an invalid amount. They will be ignored.");
+            }
+
+            loaded.transactions.forEach(transaction => bank.processTransaction(transaction));
             console.log("Transactions loaded!");
         } catch (e) {
             logger.debug("Error importing the file: " + e);

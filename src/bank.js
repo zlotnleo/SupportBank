@@ -9,7 +9,7 @@ class Bank {
 
     processTransaction(transaction) {
         logger.debug("Started processing a transaction: " + JSON.stringify(transaction));
-        if(isNaN(transaction.amount)) {
+        if (isNaN(transaction.amount)) {
             logger.error("Transaction amount is NaN. Transaction is ignored.");
             return;
         }
@@ -31,26 +31,43 @@ class Bank {
             console.log("User not found");
             return;
         }
-        logger.debug("Printing information for " + this.name + "'s account");
         let account = this.accounts[name];
+        logger.debug("Printing information for " + account.name + "'s account");
         console.log("Account info for " + account.name);
         console.log("Total balance: " + account.balance);
         console.log("Transaction list:");
-        for (let transaction of account.transactions) {
-            console.log(
-                transaction.date
-                + (transaction.type === "SEND" ? " - " : " + ")
-                + transaction.amount
-                + (transaction.type === "SEND" ? " to " : " from ")
-                + transaction.otherParty
-                + " for \"" + transaction.reason + "\""
-            );
-        }
+
+
+        let allTransactions = account.transactionsFrom.concat(account.transactionsTo);
+        let validDateTransactions = [];
+        let invalidDateTransactions = [];
+        allTransactions.forEach(transaction => {
+            if (transaction.date.isValid())
+                validDateTransactions.push(transaction);
+            else
+                invalidDateTransactions.push(transaction);
+        });
+        validDateTransactions.sort((t1, t2) => t1.date - t2.date);
+
+        validDateTransactions.forEach(transaction => console.log(
+            transaction.date.format("DD/MM/YYYY")
+            + (transaction.from === account.name
+                ? " - " + transaction.amount + " to " + transaction.to
+                : " + " + transaction.amount + " from " + transaction.from
+            ) + " for \"" + transaction.reason + "\""
+        ));
+        invalidDateTransactions.forEach(transaction => console.log(
+            "[No Date]"
+            + (transaction.from === account.name
+                ? " - " + transaction.amount + " to " + transaction.to
+                : " + " + transaction.amount + " from " + transaction.from
+            ) + " for \"" + transaction.reason + "\""
+        ));
     }
 
     printAllAccounts() {
         logger.debug("Printing a list of all accounts");
-        if(Object.keys(this.accounts).length === 0) {
+        if (Object.keys(this.accounts).length === 0) {
             console.log("No accounts exist.");
             return;
         }
