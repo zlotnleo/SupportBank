@@ -77,6 +77,23 @@ class Bank {
             console.log(this.accounts[name].name + ": " + this.accounts[name].balance.toFixed(2));
         }
     }
+
+    getAllTransactions() {
+        let transactions = [];
+        for(let name in this.accounts) {
+            transactions = transactions.concat(this.accounts[name].transactionsFrom);
+        }
+        let validDateTransactions = [];
+        let invalidDateTransactions = [];
+        transactions.forEach(transaction => {
+            if (transaction.date.isValid())
+                validDateTransactions.push(transaction);
+            else
+                invalidDateTransactions.push(transaction);
+        });
+        validDateTransactions.sort((t1, t2) => t1.date - t2.date);
+        return validDateTransactions.concat(invalidDateTransactions);
+    }
 }
 
 module.exports = Bank;
